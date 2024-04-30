@@ -46,10 +46,17 @@ listener = keyboard.Listener(press, release)
 listener.start()
 
 
-
 while gameStart:
     correct_key = random.choice(keys)
     print(correct_key, end='\r')
-    
+    with keyboard.Events as events:
+        event = events.get(1)
+        if event is None:
+            print('You missed the key')
+        elif event.key == correct_key:
+            print('You pressed the correct key')
+        else:
+            print('You pressed the wrong key')
+
 
    
