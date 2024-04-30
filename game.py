@@ -3,6 +3,7 @@ import datetime
 import time
 import random
 
+
 key_pressed = False
 gameStart = True
 keys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'Z']
@@ -38,28 +39,17 @@ class keyLogger:
         if key == keyboard.Key.esc:
             # Stop listener
             return False
- 
-listener = keyboard.Listener(
-        on_press=keyLogger.on_press,
-        on_release=keyLogger.on_release,)
+press = keyLogger.on_press
+release = keyLogger.on_release
+
+listener = keyboard.Listener(press, release)
+listener.start()
+
 
 
 while gameStart:
     correct_key = random.choice(keys)
     print(correct_key, end='\r')
-    while True:
-            pressed_key = listener.wait()  # Wait for a key press event
-            if pressed_key is not None:  # Check if a key was pressed
-                break  
-
-    if pressed_key.char == correct_key:
-        print("Correct!")
-
-    elif pressed_key == keyboard.Key.esc:
-        print("Quitting...")
-        break  # Exit the loop
-
-    else:
-        print("Wrong key. Try again.")
+    
 
    
