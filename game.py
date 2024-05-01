@@ -15,48 +15,35 @@ keys = ['q', 'w', 'e', 'r', 't', 'y', 'z']
 
 
 
-class keyLogger:
+class fishCatch:
     @staticmethod
-    def on_press(key):
-        global start_time
-        global key_pressed
-        if key_pressed == False:
-            start_time = datetime.datetime.now().microsecond
-            key_pressed = True
-        else:
-            key_pressed = True
-
-    def on_release(key):
-        global end_time
-        global key_pressed
-        end_time = datetime.datetime.now().microsecond
-        key_pressed = False
-        if key == keyboard.Key.esc:
-            # Stop listener
-            return False
-press = keyLogger.on_press
-release = keyLogger.on_release
-
-listener = keyboard.Listener(press, release)
-listener.start()
+    def catchFish(time):
+        with keyboard.Events() as events:
+            event = events.get(time)
+            pressed_key = event.key.char
+            correct_key = random.choice(keys)
+            if event is None:
+                print('You missed the key', end='\r')
+                return False
+            elif pressed_key == correct_key:
+                print('You pressed the correct key', end='\r')
+            else:
+                print('You pressed the wrong key', end='')S
+                return False
+        
+   
 
 
 while gameStart:
     time.sleep(2)
-    fishChoose = random.randint()
-    correct_key = random.choice(keys)
-    print(correct_key, end='\r')
-    with keyboard.Events() as events:
-        event = events.get(5)
-        pressed_key = event.key.char
-        if event is None:
-            print('You missed the key', end='\r')
-        elif pressed_key == correct_key:
-            print('You pressed the correct key', end='\r')
-        else:
-            print('You pressed the wrong key', end='')
-            print(pressed_key, end='\r')
-        print("\033[H\033[J", end="")
+    fishChoose = random.randint(0, 1000)
+    
+
+    
+    
+    
+    
+    print("\033[H\033[J", end="")
 
 
    
