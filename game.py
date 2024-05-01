@@ -2,11 +2,15 @@ from pynput import keyboard
 import datetime
 import time
 import random
-
+fishType = ['karas', 'kapr', 'pstruh', 'štika', 'sumec', 'žralok', 'velryba']
+fishID = {'karas': 1, 'kapr': 2, 'pstruh': 3, 'štika': 4, 'sumec': 5, 'žralok': 6, 'velryba': 7}
+fishValue = {'karas': 1, 'kapr': 3, 'pstruh': 5, 'štika': 10, 'sumec': 20, 'žralok': 50, 'velryba': 100}
+fishQuality = ['malý', 'střední', 'velký', 'obrovský']
 
 key_pressed = False
 gameStart = True
-keys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'Z']
+
+keys = ['q', 'w', 'e', 'r', 't', 'y', 'z']
 
 
 
@@ -19,12 +23,6 @@ class keyLogger:
         if key_pressed == False:
             start_time = datetime.datetime.now().microsecond
             key_pressed = True
-            try:
-                print('alphanumeric key {0} pressed'.format(
-                key.char))
-            except AttributeError:
-                print('special key {0} pressed'.format(
-                    key))
         else:
             key_pressed = True
 
@@ -33,9 +31,6 @@ class keyLogger:
         global key_pressed
         end_time = datetime.datetime.now().microsecond
         key_pressed = False
-        print('Key pressed for: ', end_time - start_time)
-        print('{0} released'.format(
-            key))
         if key == keyboard.Key.esc:
             # Stop listener
             return False
@@ -47,16 +42,21 @@ listener.start()
 
 
 while gameStart:
+    time.sleep(2)
+    fishChoose = random.randint()
     correct_key = random.choice(keys)
     print(correct_key, end='\r')
-    with keyboard.Events as events:
-        event = events.get(1)
+    with keyboard.Events() as events:
+        event = events.get(5)
+        pressed_key = event.key.char
         if event is None:
-            print('You missed the key')
-        elif event.key == correct_key:
-            print('You pressed the correct key')
+            print('You missed the key', end='\r')
+        elif pressed_key == correct_key:
+            print('You pressed the correct key', end='\r')
         else:
-            print('You pressed the wrong key')
+            print('You pressed the wrong key', end='')
+            print(pressed_key, end='\r')
+        print("\033[H\033[J", end="")
 
 
    
