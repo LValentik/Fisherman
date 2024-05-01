@@ -42,7 +42,7 @@ while gameStart:
     time.sleep(2)
     fishChoose = random.randint(0, 1000)
     if fishChoose < 400:
-        fishCaught = fishCaught.catchFish(2)
+        fishCaught = fishCaught.catchFish(2, 5)
         if fishCaught:
             print('Chytl jsi karase!')
             fishcaughtNum =+ 1
@@ -52,7 +52,7 @@ while gameStart:
             print('Nechytil jsi rybu')
     
     if fishChoose >= 400 and fishChoose < 600:
-        fishCaught = fishCaught.catchFish(1)
+        fishCaught = fishCaught.catchFish(1, 5)
         if fishCaught:
             print('Chytl jsi kapra!')
             fishcaughtNum =+ 1
@@ -62,7 +62,7 @@ while gameStart:
             print('Nechytil jsi rybu')
     
     if fishChoose >=600 and fishChoose < 700:
-        fishCaught = fishCaught.catchFish(0.5)
+        fishCaught = fishCaught.catchFish(0.5, 10)
         if fishCaught:
             print('Chytl jsi pstruha!')
             fishcaughtNum =+ 1
@@ -72,7 +72,7 @@ while gameStart:
             print('Nechytil jsi rybu')
             
     if fishChoose >= 700 and fishChoose < 750:
-        fishCaught = fishCaught.catchFish(0.3)
+        fishCaught = fishCaught.catchFish(0.3, 10)
         if fishCaught:
             print('Chytl jsi štiku!')
             fishcaughtNum =+ 1
@@ -82,7 +82,7 @@ while gameStart:
             print('Nechytil jsi rybu')
             
     if fishChoose >= 750 and fishChoose < 775:
-        fishCaught = fishCaught.catchFish(0.2)
+        fishCaught = fishCaught.catchFish(0.2, 15)
         if fishCaught:
             print('Chytl jsi sumce!')
             fishcaughtNum =+ 1
@@ -92,7 +92,7 @@ while gameStart:
             print('Nechytil jsi rybu')
     
     if fishChoose >= 775 and fishChoose < 785:
-        fishCaught = fishCaught.catchFish(0.1)
+        fishCaught = fishCaught.catchFish(0.1, 15)
         if fishCaught:
             print('Chytl jsi žraloka!')
             fishcaughtNum =+ 1
@@ -102,7 +102,7 @@ while gameStart:
             print('Nechytil jsi rybu')
             
     if fishChoose >= 785 and fishChoose < 790:
-        fishCaught = fishCaught.catchFish(0.05)
+        fishCaught = fishCaught.catchFish(0.05, 10)
         if fishCaught:
             print('Chytl jsi velrybu!')
             fishcaughtNum =+ 1
