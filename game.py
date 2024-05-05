@@ -1,5 +1,4 @@
 from pynput import keyboard
-import datetime
 import time
 import random
 import psycopg
@@ -55,15 +54,88 @@ class DataWork:
             cur.close()
             conn.close()
     
-    def InvUpload():
+    def GameClose():
         try:
-            cur.execute()
+            
+            fish_count = {}
+            
+            for fish in fishcaughtNames:
+                if fish in fish_count:
+                    fish_count[fish] += 1
+                else:
+                    fish_count[fish] = 1
+
+            for fish, count in fish_count.items():
+                cur.execute('INSERT INTO inventory.inv ("acc", "item", "value", "quantity") VALUES (%s, %s, %s, %s) ON CONFLICT ("acc", "item") DO UPDATE SET "quantity" = inventory.inv."quantity" + %s;', (username, fish, fish.fishValue, count, count))
+                conn.commit()    
+        
+        
+        
         except Exception as er:
             print(f"An error occured: {er}")
             return False
         finally:
+            cur.close()
+            conn.close()
+            return True
+    
+    def InvShow():
+        try:
+            cur.execute('SELECT * FROM inventory.inv WHERE "acc" = %s;', (username))
+            inventory = cur.fetchall()
+            print("Your inventory:")
+            for item in inventory:
+                print(f"{item[1]}: {item[3]}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return False
+        finally:
+            cur.close()
+            conn.close()
+            return True
+    
+    def InvSell(fish_to_sell, quantity_to_sell):
+        try:
+        # Fetch the specific fish from the inventory
+            cur.execute('SELECT * FROM inventory.inv WHERE "acc" = %s AND "item" = %s;', (username, fish_to_sell))
+            fish = cur.fetchone()
+
+            if fish is None:
+                print(f"You don't have any {fish_to_sell}.")
+                return False
+
+            if fish[3] < quantity_to_sell:
+                print(f"You don't have enough {fish_to_sell}. You only have {fish[3]}.")
+                return False
+
+            # Calculate the total value
+            total_value = fish[2] * quantity_to_sell
+
+            # Update the quantity of the fish in the inventory
+            new_quantity = fish[3] - quantity_to_sell
+            if new_quantity == 0:
+                cur.execute('DELETE FROM inventory.inv WHERE "acc" = %s AND "item" = %s;', (username, fish_to_sell))
+            else:
+                cur.execute('UPDATE inventory.inv SET "quantity" = %s WHERE "acc" = %s AND "item" = %s;', (new_quantity, username, fish_to_sell))
+
+            # Update the user's account value
+            cur.execute('UPDATE accounts.acc SET "value" = "value" + %s WHERE "user" = %s;', (total_value, username))
+            conn.commit()
+
+            print(f"Sold {quantity_to_sell} {fish_to_sell} for {total_value} coins.")
+            return True
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return False
+
+        finally:
+            cur.close()
+            conn.close()
+            
 
 class fishCatch:
+    
     @staticmethod
     def catchFish(time, amount):
         for i in range(0, amount):
@@ -85,13 +157,14 @@ class fishCatch:
                     return False
                 print("\033[H\033[J", end="")
         return True
-   
+    
+    
 signin = DataWork.LogRes()
 
 while signin:
    
     time.sleep(2)
-    fishChoose = random.randint(0, 1000)
+    fishChoose = random.randint(0, 790)
     if fishChoose < 400:
         fishCaught = fishCatch.catchFish(3, 5)
         if fishCaught:
@@ -102,7 +175,7 @@ while signin:
         else:
             print('Nechytil jsi rybu')
     
-    if fishChoose >= 400 and fishChoose < 600:
+    elif fishChoose >= 400 and fishChoose < 600:
         fishCaught = fishCatch.catchFish(2, 5)
         if fishCaught:
             print('Chytl jsi kapra!')
@@ -112,7 +185,7 @@ while signin:
         else:
             print('Nechytil jsi rybu')
     
-    if fishChoose >=600 and fishChoose < 700:
+    elif fishChoose >=600 and fishChoose < 700:
         fishCaught = fishCatch.catchFish(2, 10)
         if fishCaught:
             print('Chytl jsi pstruha!')
@@ -122,7 +195,7 @@ while signin:
         else:
             print('Nechytil jsi rybu')
             
-    if fishChoose >= 700 and fishChoose < 750:
+    elif fishChoose >= 700 and fishChoose < 750:
         fishCaught = fishCatch.catchFish(1, 10)
         if fishCaught:
             print('Chytl jsi štiku!')
@@ -132,7 +205,7 @@ while signin:
         else:
             print('Nechytil jsi rybu')
             
-    if fishChoose >= 750 and fishChoose < 775:
+    elif fishChoose >= 750 and fishChoose < 775:
         fishCaught = fishCatch.catchFish(1, 15)
         if fishCaught:
             print('Chytl jsi sumce!')
@@ -142,7 +215,7 @@ while signin:
         else:
             print('Nechytil jsi rybu')
     
-    if fishChoose >= 775 and fishChoose < 785:
+    elif fishChoose >= 775 and fishChoose < 785:
         fishCaught = fishCatch.catchFish(0.8, 15)
         if fishCaught:
             print('Chytl jsi žraloka!')
@@ -152,7 +225,7 @@ while signin:
         else:
             print('Nechytil jsi rybu')
             
-    if fishChoose >= 785 and fishChoose < 790:
+    elif fishChoose >= 785 and fishChoose < 790:
         fishCaught = fishCatch.catchFish(0.6, 10)
         if fishCaught:
             print('Chytl jsi velrybu!')
