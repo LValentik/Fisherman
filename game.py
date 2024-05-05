@@ -3,6 +3,8 @@ import time
 import random
 import psycopg
 import getpass
+import os
+
 
 
 fishType = ['karas', 'kapr', 'pstruh', 'štika', 'sumec', 'žralok', 'velryba']
@@ -194,12 +196,12 @@ class DataWork:
 class fishCatch:
     
     @staticmethod
-    def catchFish(time, amount):
+    def catchFish(tim, amount):
         for i in range(0, amount):
             with keyboard.Events() as events:
                 correct_key = random.choice(keys)
                 print(correct_key, end='\r')
-                event = events.get(time)
+                event = events.get(tim)
                 if event is None:
                     print('You missed the key', end='\r')
                     return False
@@ -219,6 +221,13 @@ class fishCatch:
 signin = DataWork.LogRes()
 
 while signin:
+    # Function to clear the terminal
+    gameStart = False
+    def clear_terminal():
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+    # Clear the terminal before displaying the menu
+    clear_terminal()
     print("Welcome to the game!")
     print("Press '1' to start fishing")
     print("Press '2' to show your inventory")
@@ -226,29 +235,27 @@ while signin:
     print("Press '4' to show the store")
     print("Press '5' to buy from the store")
     print("Press '6' to exit the game")
-    with keyboard.Events() as events:
-        event = events.get()
-        if event is not None:
-            key = event.key
-            if key == keyboard.Key.one:
-                gameStart = True
-            elif key == keyboard.Key.two:
-                DataWork.InvShow()
-            elif key == keyboard.Key.three:
-                fish_to_sell = input("Enter the name of the fish you want to sell: ")
-                quantity_to_sell = int(input("Enter the quantity you want to sell: "))
-                DataWork.InvSell(fish_to_sell, quantity_to_sell)
-            elif key == keyboard.Key.four:
-                DataWork.StoreShow()
-            elif key == keyboard.Key.five:
-                item_to_buy = input("Enter the name of the item you want to buy: ")
-                quantity_to_buy = int(input("Enter the quantity you want to buy: "))
-                DataWork.StoreBuy(item_to_buy, quantity_to_buy)
-            elif key == keyboard.Key.six:
-                DataWork.GameClose()
-                break
-            else:
-                print("Invalid key")
+    choice = input("Enter your choice: ")
+
+    if choice == '1':
+        gameStart = True
+    elif choice == '2':
+        DataWork.InvShow()
+    elif choice == '3':
+        fish_to_sell = input("Enter the fish you want to sell: ")
+        quantity_to_sell = int(input("Enter the quantity to sell: "))
+        DataWork.InvSell(fish_to_sell, quantity_to_sell)
+    elif choice == '4':
+        DataWork.StoreShow()
+    elif choice == '5':
+        item_to_buy = input("Enter the item you want to buy: ")
+        quantity_to_buy = int(input("Enter the quantity to buy: "))
+        DataWork.StoreBuy(item_to_buy, quantity_to_buy)
+    elif choice == '6':
+        if DataWork.GameClose():
+            break
+    else:
+        print("Invalid choice. Please try again.")
     
     
     while gameStart:
