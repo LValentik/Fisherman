@@ -54,10 +54,15 @@ class DataWork:
                 return False
             else:
                 # If the user doesn't exist, create a new account
-                cur.execute('INSERT INTO accounts.acc ("user", "pass", "value") VALUES (%s, %s, 0);', (username, password))
-                conn.commit()
-                print("Registered successfully.")
-                return True
+                register = input("User not found. Do you want to register? y/n")
+                if register == 'y':
+                    cur.execute('INSERT INTO accounts.acc ("user", "pass", "value") VALUES (%s, %s, 0);', (username, password))
+                    conn.commit()
+                    print("Registered successfully.")
+                    return True
+                else:
+                    print("Exiting...")
+                    return False
 
         except Exception as e:
             print(f"An error occurred: {e}")
@@ -222,9 +227,6 @@ class DataWork:
             cur.close()
             conn.close()
             return True 
-            
-            
-
 class fishCatch:
     
     @staticmethod
@@ -257,9 +259,8 @@ class fishCatch:
                     clear_terminal()
                     return False
                 print("\033[H\033[J", end="")
-        return True
-    
-    
+        return True  
+
 signin = DataWork.LogRes()
 
 while signin:
