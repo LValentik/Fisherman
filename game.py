@@ -395,7 +395,7 @@ while signin:
         choice = input("Press 'q' to quit or any other key to continue fishing: ")
         if choice == 'q':
             gameStart = False
-    print("\033[H\033[J", end="")
+    clear_terminal()
 
 
    
