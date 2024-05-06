@@ -27,8 +27,7 @@ class DataWork:
 
     def LogRes():
         global username
-        global conn
-        global cur
+
         username = input("Enter your username: ")
         password = getpass.getpass("Enter your password: ")
 
@@ -37,10 +36,21 @@ class DataWork:
             cur = conn.cursor()
 
             # Check if the user exists
-            cur.execute('SELECT * FROM accounts.acc WHERE "user" = %s AND "pass" = %s;', (username, password))
-            if cur.fetchone() is not None:
-                print("Login successful.")
-                return True
+            cur.execute('SELECT * FROM accounts.acc WHERE "user" = %s;', (username,))
+            user = cur.fetchone()
+
+            if user is not None:
+                # Check password for 3 attempts
+                for _ in range(3):
+                    if user[1] == password:
+                        print("Login successful.")
+                        return True
+                    else:
+                        print("Incorrect password.")
+                        password = getpass.getpass("Enter your password: ")
+
+                print("Too many incorrect attempts. Exiting...")
+                return False
             else:
                 # If the user doesn't exist, create a new account
                 cur.execute('INSERT INTO accounts.acc ("user", "pass", "value") VALUES (%s, %s, 0);', (username, password))
@@ -55,59 +65,42 @@ class DataWork:
         finally:
             cur.close()
             conn.close()
-    
-    def GameClose():
-        try:
-            
-            fish_count = {}
-            
-            for fish in fishcaughtNames:
-                if fish in fish_count:
-                    fish_count[fish] += 1
-                else:
-                    fish_count[fish] = 1
-
-            for fish, count in fish_count.items():
-                cur.execute('INSERT INTO inventory.inv ("acc", "item", "value", "quantity") VALUES (%s, %s, %s, %s) ON CONFLICT ("acc", "item") DO UPDATE SET "quantity" = inventory.inv."quantity" + %s;', (username, fish, fish.fishValue, count, count))
-                conn.commit()    
-        
-        
-        
-        except Exception as er:
-            print(f"An error occured: {er}")
-            return False
-        finally:
-            cur.close()
-            conn.close()
-            return True
-    
     def InvShow():
         try:
-            cur.execute('SELECT * FROM inventory.inv WHERE "acc" = %s;', (username))
+            conn = psycopg.connect(host='localhost', dbname='fishgame', port=5432, user='postgres', password='VaLeNtIk2007.')
+            cur = conn.cursor()
+            cur.execute('SELECT * FROM accounts.inv WHERE "acc" = %s;', (username,))
             inventory = cur.fetchall()
             print("Your inventory:")
             for item in inventory:
                 print(f"{item[1]}: {item[3]}")
+            cur.execute('SELECT value FROM accounts.acc WHERE "user" = %s;', (username,))
+            print(f"Your account value: {cur.fetchone()[0]}")
+            input("Press Enter to close...")
         except Exception as e:
             print(f"An error occurred: {e}")
+            input("Press Enter to close...")
             return False
         finally:
             cur.close()
             conn.close()
             return True
-    
     def InvSell(fish_to_sell, quantity_to_sell):
         try:
         # Fetch the specific fish from the inventory
-            cur.execute('SELECT * FROM inventory.inv WHERE "acc" = %s AND "item" = %s;', (username, fish_to_sell))
+            conn = psycopg.connect(host='localhost', dbname='fishgame', port=5432, user='postgres', password='VaLeNtIk2007.')
+            cur = conn.cursor()
+            cur.execute('SELECT * FROM accounts.inv WHERE "acc" = %s AND "item" = %s;', (username, fish_to_sell))
             fish = cur.fetchone()
 
             if fish is None:
                 print(f"You don't have any {fish_to_sell}.")
+                input("Press Enter to close...")
                 return False
 
             if fish[3] < quantity_to_sell:
                 print(f"You don't have enough {fish_to_sell}. You only have {fish[3]}.")
+                input("Press Enter to close...")
                 return False
 
             # Calculate the total value
@@ -116,57 +109,68 @@ class DataWork:
             # Update the quantity of the fish in the inventory
             new_quantity = fish[3] - quantity_to_sell
             if new_quantity == 0:
-                cur.execute('DELETE FROM inventory.inv WHERE "acc" = %s AND "item" = %s;', (username, fish_to_sell))
+                cur.execute('DELETE FROM accounts.inv WHERE "acc" = %s AND "item" = %s;', (username, fish_to_sell))
             else:
-                cur.execute('UPDATE inventory.inv SET "quantity" = %s WHERE "acc" = %s AND "item" = %s;', (new_quantity, username, fish_to_sell))
+                cur.execute('UPDATE accounts.inv SET "quantity" = %s WHERE "acc" = %s AND "item" = %s;', (new_quantity, username, fish_to_sell))
 
             # Update the user's account value
             cur.execute('UPDATE accounts.acc SET "value" = "value" + %s WHERE "user" = %s;', (total_value, username))
             conn.commit()
 
             print(f"Sold {quantity_to_sell} {fish_to_sell} for {total_value} coins.")
+            input("Press Enter to close...")
             return True
 
         except Exception as e:
             print(f"An error occurred: {e}")
+            input("Press Enter to close...")
             return False
 
         finally:
             cur.close()
-            conn.close()
-    
+            conn.close()  
     def StoreShow():
         try:
+            conn = psycopg.connect(host='localhost', dbname='fishgame', port=5432, user='postgres', password='VaLeNtIk2007.')
+            cur = conn.cursor()
             cur.execute('SELECT * FROM store.items;')
             store = cur.fetchall()
             print("Store:")
             for item in store:
-                print(f"{item[1]}: {item[2]} coins")
+                print(f"{item[0]}: ({item[1]} coins each, {item[2]} available)")
+            input("Press Enter to close...")
         except Exception as e:
             print(f"An error occurred: {e}")
+            input("Press Enter to close...")
             return False
+
         finally:
             cur.close()
             conn.close()
             return True
     def StoreBuy(item_to_buy, quantity_to_buy):
         try:
+            conn = psycopg.connect(host='localhost', dbname='fishgame', port=5432, user='postgres', password='VaLeNtIk2007.')
+            cur = conn.cursor()
             cur.execute('SELECT * FROM store.items WHERE "item_name" = %s;', (item_to_buy,))
             item = cur.fetchone()
 
             if item is None:
                 print(f"The item {item_to_buy} is not available in the store.")
+                input("Press Enter to close...")
                 return False
 
             cur.execute('SELECT * FROM accounts.acc WHERE "user" = %s;', (username,))
             user = cur.fetchone()
 
-            if user[3] < item[2] * quantity_to_buy:
+            if user[2] < item[2] * quantity_to_buy:
                 print(f"You don't have enough coins to buy {quantity_to_buy} {item_to_buy}. You need {item[2] * quantity_to_buy} coins.")
+                input("Press Enter to close...")
                 return False
 
             if quantity_to_buy > item[3]:
-                print(f"There are only {item[3]} {item_to_buy} available in the store.")
+                print(f"There are only {item[1]} {item_to_buy} available in the store.")
+                input("Press Enter to close...")
                 return False
 
             cur.execute('UPDATE accounts.acc SET "value" = "value" - %s WHERE "user" = %s;', (item[2] * quantity_to_buy, username))
@@ -174,7 +178,7 @@ class DataWork:
             conn.commit()
 
             print(f"Bought {quantity_to_buy} {item_to_buy} for {item[2] * quantity_to_buy} coins.")
-
+            input("Press Enter to close...")
             # Remove the item from the store if the user bought all the items
             if quantity_to_buy >= item[3]:
                 cur.execute('DELETE FROM store.items WHERE "item_name" = %s;', (item_to_buy,))
@@ -251,6 +255,7 @@ while signin:
         item_to_buy = input("Enter the item you want to buy: ")
         quantity_to_buy = int(input("Enter the quantity to buy: "))
         DataWork.StoreBuy(item_to_buy, quantity_to_buy)
+        input("Press Enter to close...")
     elif choice == '6':
         if DataWork.GameClose():
             break
@@ -332,7 +337,10 @@ while signin:
                 fishcaughtNames.append('velryba')
             else:
                 print('Nechytil jsi rybu')
-    
+        
+        choice = input("Press 'q' to quit or any other key to continue fishing: ")
+        if choice == 'q':
+            gameStart = False
     print("\033[H\033[J", end="")
 
 
