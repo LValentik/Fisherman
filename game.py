@@ -44,6 +44,7 @@ class DataWork:
                 for _ in range(3):
                     if user[1] == password:
                         print("Login successful.")
+                        time.sleep(3)
                         return True
                     else:
                         print("Incorrect password.")
@@ -193,7 +194,34 @@ class DataWork:
         finally:
             cur.close()
             conn.close()
+    def GameClose():
+        try:
+            conn = psycopg.connect(host='localhost', dbname='fishgame', port=5432, user='postgres', password='VaLeNtIk2007.')
+            cur = conn.cursor()
+            fish_count = {}
             
+            for fish in fishcaughtNames:
+                if fish in fish_count:
+                    fish_count[fish] += 1
+                else:
+                    fish_count[fish] = 1
+
+            for fish, count in fish_count.items():
+                cur.execute('INSERT INTO accounts.inv ("acc", "item", "value", "quantity") VALUES (%s, %s, %s, %s) ON CONFLICT ("acc", "item") DO UPDATE SET "quantity" = accounts.inv."quantity" + %s;', (username, fish, fishValue[fish], count, count))
+                conn.commit() 
+                   
+        
+        
+        
+        except Exception as er:
+            print(f"An error occured: {er}")
+            input("Press Enter to close...")
+            return False
+        finally:
+            fishcaughtNames.clear()
+            cur.close()
+            conn.close()
+            return True 
             
             
 
@@ -201,22 +229,32 @@ class fishCatch:
     
     @staticmethod
     def catchFish(tim, amount):
+        clear_terminal()
         for i in range(0, amount):
             with keyboard.Events() as events:
                 correct_key = random.choice(keys)
                 print(correct_key, end='\r')
                 event = events.get(tim)
                 if event is None:
+                    
                     print('You missed the key', end='\r')
+                    time.sleep(1)
                     return False
                 
                 pressed_key = event.key.char
                 print(pressed_key, end='')
-                time.sleep(2)
                 if pressed_key == correct_key:
-                    print('You pressed the correct key', end='\r')
+                    clear_terminal()
+                    print('')
+                    print('Nice!')
+                    time.sleep(1)
+                    clear_terminal()
+                    
                 else:
+                    clear_terminal()
                     print('You pressed the wrong key', end='')
+                    time.sleep(1)
+                    clear_terminal()
                     return False
                 print("\033[H\033[J", end="")
         return True
@@ -240,7 +278,7 @@ while signin:
     print("Press '5' to buy from the store")
     print("Press '6' to exit the game")
     choice = input("Enter your choice: ")
-
+    clear_terminal()
     if choice == '1':
         gameStart = True
     elif choice == '2':
@@ -259,9 +297,10 @@ while signin:
     elif choice == '6':
         if DataWork.GameClose():
             break
+
     else:
         print("Invalid choice. Please try again.")
-    
+        clear_terminal()
     
     while gameStart:
         time.sleep(random.uniform(1, 3))  # Randomized time between fish biting
@@ -275,8 +314,10 @@ while signin:
                 fishcaughtNum += 1
                 fishcaughtValue += fishValue['karas']
                 fishcaughtNames.append('karas')
+                DataWork.GameClose()
             else:
                 print('Nechytil jsi rybu')
+                pass
 
         elif fishChoose >= 400 and fishChoose < 600:
             fishCaught = fishCatch.catchFish(2, 5)
@@ -285,8 +326,10 @@ while signin:
                 fishcaughtNum += 1
                 fishcaughtValue += fishValue['kapr']
                 fishcaughtNames.append('kapr')
+                DataWork.GameClose()
             else:
                 print('Nechytil jsi rybu')
+                pass
 
         elif fishChoose >= 600 and fishChoose < 700:
             fishCaught = fishCatch.catchFish(2, 10)
@@ -295,8 +338,10 @@ while signin:
                 fishcaughtNum += 1
                 fishcaughtValue += fishValue['pstruh']
                 fishcaughtNames.append('pstruh')
+                DataWork.GameClose()
             else:
                 print('Nechytil jsi rybu')
+                pass
 
         elif fishChoose >= 700 and fishChoose < 750:
             fishCaught = fishCatch.catchFish(1, 10)
@@ -305,8 +350,10 @@ while signin:
                 fishcaughtNum += 1
                 fishcaughtValue += fishValue['štika']
                 fishcaughtNames.append('štika')
+                DataWork.GameClose()
             else:
                 print('Nechytil jsi rybu')
+                pass
 
         elif fishChoose >= 750 and fishChoose < 775:
             fishCaught = fishCatch.catchFish(1, 15)
@@ -315,8 +362,10 @@ while signin:
                 fishcaughtNum += 1
                 fishcaughtValue += fishValue['sumec']
                 fishcaughtNames.append('sumec')
+                DataWork.GameClose()
             else:
                 print('Nechytil jsi rybu')
+                pass
 
         elif fishChoose >= 775 and fishChoose < 785:
             fishCaught = fishCatch.catchFish(0.8, 15)
@@ -325,8 +374,10 @@ while signin:
                 fishcaughtNum += 1
                 fishcaughtValue += fishValue['žralok']
                 fishcaughtNames.append('žralok')
+                DataWork.GameClose()
             else:
                 print('Nechytil jsi rybu')
+                pass
 
         elif fishChoose >= 785 and fishChoose < 790:
             fishCaught = fishCatch.catchFish(0.6, 10)
@@ -335,8 +386,10 @@ while signin:
                 fishcaughtNum += 1
                 fishcaughtValue += fishValue['velryba']
                 fishcaughtNames.append('velryba')
+                DataWork.GameClose()
             else:
                 print('Nechytil jsi rybu')
+                pass
         
         choice = input("Press 'q' to quit or any other key to continue fishing: ")
         if choice == 'q':
