@@ -169,12 +169,12 @@ class DataWork:
             cur.execute('SELECT * FROM accounts.acc WHERE "user" = %s;', (username,))
             user = cur.fetchone()
 
-            if user[2] < item[2] * quantity_to_buy:
-                print(f"You don't have enough coins to buy {quantity_to_buy} {item_to_buy}. You need {item[2] * quantity_to_buy} coins.")
+            if user[2] < item[1] * quantity_to_buy:
+                print(f"You don't have enough coins to buy {quantity_to_buy} {item_to_buy}. You need {item[1] * quantity_to_buy} coins.")
                 input("Press Enter to close...")
                 return False
 
-            if quantity_to_buy > item[3]:
+            if quantity_to_buy > item[2]:
                 print(f"There are only {item[1]} {item_to_buy} available in the store.")
                 input("Press Enter to close...")
                 return False
@@ -183,7 +183,7 @@ class DataWork:
             cur.execute('INSERT INTO inventory.inv ("acc", "item", "value", "quantity") VALUES (%s, %s, %s, %s) ON CONFLICT ("acc", "item") DO UPDATE SET "quantity" = inventory.inv."quantity" + %s;', (username, item_to_buy, item[2], quantity_to_buy, quantity_to_buy))
             conn.commit()
 
-            print(f"Bought {quantity_to_buy} {item_to_buy} for {item[2] * quantity_to_buy} coins.")
+            print(f"Bought {quantity_to_buy} {item_to_buy} for {item[1] * quantity_to_buy} coins.")
             input("Press Enter to close...")
             # Remove the item from the store if the user bought all the items
             if quantity_to_buy >= item[3]:
